@@ -1,6 +1,7 @@
 import requests
 from .task import Task
 from .habit import Habit
+from .daily import Daily
 
 class NewLogin:
 
@@ -45,5 +46,29 @@ class NewLogin:
 		r = requests.post('https://habitica.com/api/v3/tasks/user', headers=self.credentials, data=new_habit)
 		self.update_habits()
 
+	def update_dailies(self):
+		r = requests.get('https://habitica.com/api/v3/tasks/user', headers=self.credentials, params={'type':'dailys'})
+		if r.json()['success']:
+			self.dailies = []
+			for task in r.json()['data']:
+				daily = Daily()
+				daily.owner = self
+				daily._id = task['_id']
+				daily.title = task['text']
+				daily.notes = task['notes']
+				daily.tags = task['tags']
+				daily.difficulty = Task.DIFFICULTY[task['priority']]
+				daily.checklist = task['checklist']
+				daily.completed = task['completed']
+				daily.streak = task['streak']
+				daily.repeat = task['repeat']
+				daily.everyX = task['everyX']
+				daily.frequency = task['frequency']
+				self.dailies.append(daily)
+
+	def add_daily(self,title):
+		new_daily = {'text':title,'type':'daily'}
+		r = requests.post('https://habitica.com/api/v3/tasks/user', headers=self.credentials, data=new_daily)
+		self.update_dailies()
 
 
