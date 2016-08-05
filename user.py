@@ -31,15 +31,8 @@ class NewLogin:
 		if r.json()['success']:
 			self.habits = []
 			for task in r.json()['data']:
-				habit = Habit()
+				habit = Habit.data_import(task)
 				habit.owner = self
-				habit._id = task['_id']
-				habit.title = task['text']
-				habit.notes = task['notes']
-				habit.tags = task['tags']
-				habit.difficulty = Task.DIFFICULTY[task['priority']]
-				habit.up = task['up']
-				habit.down = task['down']
 				self.habits.append(habit)
 
 	def add_habit(self,title):
@@ -52,19 +45,8 @@ class NewLogin:
 		if r.json()['success']:
 			self.dailies = []
 			for task in r.json()['data']:
-				daily = Daily()
+				daily = Daily.data_import(task)
 				daily.owner = self
-				daily._id = task['_id']
-				daily.title = task['text']
-				daily.notes = task['notes']
-				daily.tags = task['tags']
-				daily.difficulty = Task.DIFFICULTY[task['priority']]
-				daily.checklist = task['checklist']
-				daily.completed = task['completed']
-				daily.streak = task['streak']
-				daily.repeat = task['repeat']
-				daily.everyX = task['everyX']
-				daily.frequency = task['frequency']
 				self.dailies.append(daily)
 
 	def add_daily(self,title):
@@ -77,21 +59,19 @@ class NewLogin:
 		if r.json()['success']:
 			self.todos = []
 			for task in r.json()['data']:
-				todo = ToDo()
+				todo = ToDo.data_import(task)
 				todo.owner = self
-				todo._id = task['_id']
-				todo.checklist = task['checklist']
-				todo.completed = task['completed']
-				todo.notes = task['notes']
-				todo.difficulty = Task.DIFFICULTY[task['priority']]
-				todo.tags = task['tags']
-				todo.title = task['text']
 				self.todos.append(todo)
 
 	def add_todo(self,title):
 		new_todo = {'text':title,'type':'todo'}
 		r = requests.post('https://habitica.com/api/v3/tasks/user', headers=self.credentials, data=new_todo)
 		self.update_todos()
+
+	def update_tasks(self):
+		self.update_todos()
+		self.update_dailies()
+		self.update_habits()
 
 
 

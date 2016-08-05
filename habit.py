@@ -1,15 +1,21 @@
-import requests
 from .task import Task
 
 class Habit(Task):
 
-	def __init__(self):
-		super().__init__()
-		self.up = False
-		self.down = True
+	def __init__(self,up=False,down=False,**kwargs):
+		super().__init__(**kwargs)
+		self.up = up
+		self.down = down
 
-	def delete(self):
-		request_url = 'https://habitica.com/api/v3/tasks/%s' % (self._id)
-		r = requests.delete(request_url,headers=self.owner.credentials)
-		self.owner.update_habits()
-
+	@classmethod
+	def data_import(cls,data):
+		new_habit = cls(
+			id=data['id'],
+			title=data['text'],
+			notes=data['notes'],
+			tags=data['tags'],
+			difficulty=data['priority']
+			)
+		new_habit.up = data['up']
+		new_habit.down = data['down']
+		return new_habit

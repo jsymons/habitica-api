@@ -1,18 +1,40 @@
-import requests
 from .task import Task
 
 class Daily(Task):
 
-	def __init__(self):
-		super().__init__()
-		self.checklist = []
-		self.completed = False
-		self.streak = 0
-		self.repeat = {}
-		self.everyX = 0
-		self.frequency = ""
+	def __init__(
+		self,
+		checklist=None,
+		completed=False,
+		streak=None,
+		repeat=None,
+		everyX=None,
+		frequency=None,
+		**kwargs
+		):
+		super().__init__(**kwargs)
+		self.checklist = checklist
+		self.completed = completed
+		self.streak = streak
+		self.repeat = repeat
+		self.everyX = everyX
+		self.frequency = frequency
 
-	def delete(self):
-		request_url = 'https://habitica.com/api/v3/tasks/%s' % (self._id)
-		r = requests.delete(request_url,headers=self.owner.credentials)
-		self.owner.update_dailies()
+	@classmethod
+	def data_import(cls,data):
+		new_daily = cls(
+			id=data['id'],
+			title=data['text'],
+			notes=data['notes'],
+			tags=data['tags'],
+			difficulty=data['priority']
+			)
+		new_daily.checklist = data['checklist']
+		new_daily.completed = data['completed']
+		new_daily.streak = data['streak']
+		new_daily.repeat = data['repeat']
+		new_daily.everyX = data['everyX']
+		new_daily.frequency = data['frequency']
+		return new_daily
+
+
