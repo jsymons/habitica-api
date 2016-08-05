@@ -27,8 +27,18 @@ class NewLogin:
 			return False
 
 
-	def add_habit(self,title):
+	def add_habit(self,title,notes=None,tags=None,difficulty=None,up=None,down=None):
 		new_habit = {'text':title,'type':'habit'}
+		if notes:
+			new_habit['notes'] = notes
+		if tags:
+			new_habit['tags'] = tags
+		if difficulty:
+			new_habit['priority'] = difficulty
+		if up is not None:
+			new_habit['up'] = 'true' if up else 'false'
+		if down is not None:
+			new_habit['down'] = 'true' if down else 'false'
 		r = requests.post('https://habitica.com/api/v3/tasks/user', headers=self.credentials, data=new_habit)
 		self.update_tasks(task_type='habits')
 

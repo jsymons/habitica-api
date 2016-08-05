@@ -10,7 +10,7 @@ class Task:
 		self.title = title
 		self.notes = notes
 		self.tags = tags
-		self.difficulty = Task.DIFFICULTY[difficulty]
+		self.difficulty = difficulty
 
 	def delete(self):
 		request_url = 'https://habitica.com/api/v3/tasks/%s' % (self.id)
