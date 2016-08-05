@@ -26,52 +26,57 @@ class NewLogin:
 		else:
 			return False
 
-	def update_habits(self):
-		r = requests.get('https://habitica.com/api/v3/tasks/user', headers=self.credentials, params={'type':'habits'})
-		if r.json()['success']:
-			self.habits = []
-			for task in r.json()['data']:
-				habit = Habit.data_import(task)
-				habit.owner = self
-				self.habits.append(habit)
 
 	def add_habit(self,title):
 		new_habit = {'text':title,'type':'habit'}
 		r = requests.post('https://habitica.com/api/v3/tasks/user', headers=self.credentials, data=new_habit)
-		self.update_habits()
+		self.update_tasks(task_type='habits')
 
-	def update_dailies(self):
-		r = requests.get('https://habitica.com/api/v3/tasks/user', headers=self.credentials, params={'type':'dailys'})
-		if r.json()['success']:
-			self.dailies = []
-			for task in r.json()['data']:
-				daily = Daily.data_import(task)
-				daily.owner = self
-				self.dailies.append(daily)
 
 	def add_daily(self,title):
 		new_daily = {'text':title,'type':'daily'}
 		r = requests.post('https://habitica.com/api/v3/tasks/user', headers=self.credentials, data=new_daily)
-		self.update_dailies()
+		self.update_tasks(task_type='dailies')
 
-	def update_todos(self):
-		r = requests.get('https://habitica.com/api/v3/tasks/user', headers=self.credentials, params={'type':'todos'})
-		if r.json()['success']:
-			self.todos = []
-			for task in r.json()['data']:
-				todo = ToDo.data_import(task)
-				todo.owner = self
-				self.todos.append(todo)
+
 
 	def add_todo(self,title):
 		new_todo = {'text':title,'type':'todo'}
 		r = requests.post('https://habitica.com/api/v3/tasks/user', headers=self.credentials, data=new_todo)
-		self.update_todos()
+		self.update_tasks(task_type='todos')
 
-	def update_tasks(self):
-		self.update_todos()
-		self.update_dailies()
-		self.update_habits()
+	def update_tasks(self,task_type=None):
+		if task_type is None:
+			r = requests.get('https://habitica.com/api/v3/tasks/user', headers=self.credentials)
+		elif task_type == 'dailies':
+			r = requests.get('https://habitica.com/api/v3/tasks/user', headers=self.credentials, params={'type':'dailys'})
+		else:
+			r = requests.get('https://habitica.com/api/v3/tasks/user', headers=self.credentials, params={'type':task_type})
+		if r.json()['success']:
+			if task_type == 'habits':
+				self.habits = []
+			elif task_type == 'dailies':
+				self.dailies = []
+			elif task_type == 'todos':
+				self.todos == []
+			else:
+				self.habits = []
+				self.dailies = []
+				self.todos = []
+			for task in r.json()['data']:
+				if task['type'] == 'habit':
+					habit = Habit.data_import(task)
+					habit.owner = self
+					self.habits.append(habit)
+				elif task['type'] == 'daily':
+					daily = Daily.data_import(task)
+					daily.owner = self
+					self.dailies.append(daily)
+				elif task['type'] == 'todo':
+					todo = ToDo.data_import(task)
+					todo.owner = self
+					self.todos.append(todo)
+
 
 
 
