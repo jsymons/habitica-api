@@ -12,6 +12,8 @@ class Connection():
 		
 	def post(self,url,data):
 		r = requests.post(BASE_URL+url, headers=self.headers, data=json.dumps(data))
+		if not r.json()['success']:
+			print(r.text)
 		return r.json()
 
 	def get(self,url,params=None):

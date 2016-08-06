@@ -54,8 +54,14 @@ class User():
 		
 
 
-	def add_todo(self,title):
+	def add_todo(self,title,notes=None,date=None,difficulty=None):
 		new_todo = {'text':title,'type':'todo'}
+		if notes:
+			new_todo['notes'] = notes
+		if date:
+			new_todo['date'] = date
+		if difficulty:
+			new_todo['priority'] = difficulty
 		if self.h.add_task(new_todo):
 			self.update_tasks(task_type=Task.TODO)
 
