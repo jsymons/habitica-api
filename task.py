@@ -3,6 +3,9 @@ import requests
 class Task:
 
 	DIFFICULTY = {0.1:'Trivial',1:'Easy',1.5:'Medium',2:'Hard'}
+	DAILY = 'dailys'
+	TODO = 'todos'
+	HABIT = 'habits'
 
 	def __init__(self,owner=None,id=None,title=None,notes=None,tags=None,difficulty=1.5,**kwargs):
 		self.owner = owner
@@ -13,9 +16,8 @@ class Task:
 		self.difficulty = difficulty
 
 	def delete(self):
-		request_url = 'https://habitica.com/api/v3/tasks/%s' % (self.id)
-		r = requests.delete(request_url,headers=self.owner.credentials)
-		self.owner.update_tasks()
+		if self.owner.h.delete_task(self.id):
+			self.owner.update_tasks()
 
 
 

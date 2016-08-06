@@ -1,79 +1,83 @@
 import requests
+import json
 from .task import Task
 from .habit import Habit
 from .daily import Daily
 from .todo import ToDo
 
-class NewLogin:
+class User():
 
-	def __init__(self):
-		self.login_status = False
-		self.credentials = {}
-
-	def login(self,username,password):
-		credentials = {'username': username, 'password': password}
-		r = requests.post('https://habitica.com/api/v3/user/auth/local/login', data=credentials)
-		if r.status_code == 200:
-			self.credentials['x-api-user'] = r.json()['data']['id']
-			self.credentials['x-api-key'] = r.json()['data']['apiToken']
-			self.login_status = True
+	def __init__(self,habitica_connection):
+		self.h = habitica_connection
 
 	def update_status(self):
-		r = requests.get('https://habitica.com/api/v3/user', headers=self.credentials)
-		if r.json()['success']:
-			self.profile = r.json()['data']
+		status = self.h.get_status()
+		if status is not None:
+			self.profile = status
 			return True
 		else:
 			return False
-
-
+	
 	def add_habit(self,title,notes=None,tags=None,difficulty=None,up=None,down=None):
 		new_habit = {'text':title,'type':'habit'}
-		if notes:
+		if notes is not None:
 			new_habit['notes'] = notes
-		if tags:
+		if tags is not None:
 			new_habit['tags'] = tags
-		if difficulty:
+		if difficulty is not None:
 			new_habit['priority'] = difficulty
 		if up is not None:
-			new_habit['up'] = 'true' if up else 'false'
+			new_habit['up'] = up
 		if down is not None:
-			new_habit['down'] = 'true' if down else 'false'
-		r = requests.post('https://habitica.com/api/v3/tasks/user', headers=self.credentials, data=new_habit)
-		self.update_tasks(task_type='habits')
+			new_habit['down'] = down
 
+		if self.h.add_task(new_habit):
+			self.update_tasks(task_type=Task.HABIT)
+		
 
-	def add_daily(self,title):
+	def add_daily(self,title,notes=None,tags=None,difficulty=None,repeat=None,everyX=None,frequency=None):
 		new_daily = {'text':title,'type':'daily'}
-		r = requests.post('https://habitica.com/api/v3/tasks/user', headers=self.credentials, data=new_daily)
-		self.update_tasks(task_type='dailies')
-
+		if notes:
+			new_daily['notes'] = notes
+		if tags:
+			new_daily['tags'] = tags
+		if difficulty:
+			new_daily['priority'] = difficulty
+		if repeat:
+			new_daily['repeat'] = repeat
+		if everyX:
+			new_daily['everyX'] = everyX
+		if frequency:
+			new_daily['frequency'] = frequency
+		if self.h.add_task(new_daily):
+			self.update_tasks(task_type=Task.DAILY)
+		
 
 
 	def add_todo(self,title):
 		new_todo = {'text':title,'type':'todo'}
-		r = requests.post('https://habitica.com/api/v3/tasks/user', headers=self.credentials, data=new_todo)
-		self.update_tasks(task_type='todos')
+		if self.h.add_task(new_todo):
+			self.update_tasks(task_type=Task.TODO)
 
 	def update_tasks(self,task_type=None):
-		if task_type is None:
-			r = requests.get('https://habitica.com/api/v3/tasks/user', headers=self.credentials)
-		elif task_type == 'dailies':
-			r = requests.get('https://habitica.com/api/v3/tasks/user', headers=self.credentials, params={'type':'dailys'})
+		if task_type is not None:
+			tasks = self.h.get_tasks(task_type)
 		else:
-			r = requests.get('https://habitica.com/api/v3/tasks/user', headers=self.credentials, params={'type':task_type})
-		if r.json()['success']:
-			if task_type == 'habits':
+			tasks = self.h.get_tasks()
+
+		if tasks is not None:
+			if task_type == Task.HABIT:
 				self.habits = []
-			elif task_type == 'dailies':
+			elif task_type == Task.DAILY:
 				self.dailies = []
-			elif task_type == 'todos':
-				self.todos == []
+			elif task_type == Task.TODO:
+				self.todos = []
 			else:
 				self.habits = []
 				self.dailies = []
 				self.todos = []
-			for task in r.json()['data']:
+
+			for task in tasks:
 				if task['type'] == 'habit':
 					habit = Habit.data_import(task)
 					habit.owner = self
