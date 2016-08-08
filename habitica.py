@@ -68,3 +68,18 @@ class Connection():
 		request_url = 'tasks/%s' % (id)
 		r = self.put(request_url,data)
 		return r['success']
+
+	def add_to_checklist(self,id,data):
+		request_url = 'tasks/%s/checklist' % (id)
+		r = self.post(request_url,data)
+		return r['success']
+
+	def delete_from_checklist(self,id,checklist_item_id):
+		request_url = 'tasks/%s/checklist/%s' % (id,checklist_item_id)
+		r = self.delete(request_url)
+		return r['success']
+
+	def edit_checklist(self,id,checklist_item_id,data):
+		request_url = 'tasks/%s/checklist/%s' % (id,checklist_item_id)
+		r = self.put(request_url,data)
+		return r['success']

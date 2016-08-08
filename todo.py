@@ -6,19 +6,8 @@ class ToDo(Task):
 		super().__init__(**kwargs)
 		self.checklist = checklist
 		self.completed = completed
-		self.due_date = due_date
+		if 'date' in kwargs.keys():
+			self.due_date = kwargs['date']
+		else:
+			self.due_date = due_date
 
-	@classmethod
-	def data_import(cls,data):
-		new_todo = cls(
-			id=data['id'],
-			title=data['text'],
-			notes=data['notes'],
-			tags=data['tags'],
-			difficulty=data['priority']
-			)
-		new_todo.checklist = data['checklist']
-		new_todo.completed = data['completed']
-		if 'date' in data.keys():
-			new_todo.due_date = data['date']
-		return new_todo

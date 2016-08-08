@@ -85,15 +85,15 @@ class User():
 
 			for task in tasks:
 				if task['type'] == 'habit':
-					habit = Habit.data_import(task)
+					habit = Habit(**task)
 					habit.owner = self
 					self.habits.append(habit)
 				elif task['type'] == 'daily':
-					daily = Daily.data_import(task)
+					daily = Daily(**task)
 					daily.owner = self
 					self.dailies.append(daily)
 				elif task['type'] == 'todo':
-					todo = ToDo.data_import(task)
+					todo = ToDo(**task)
 					todo.owner = self
 					self.todos.append(todo)
 

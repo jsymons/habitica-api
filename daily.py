@@ -28,22 +28,3 @@ class Daily(Task):
 		self.repeat = repeat
 		self.everyX = everyX
 		self.frequency = frequency
-
-	@classmethod
-	def data_import(cls,data):
-		new_daily = cls(
-			id=data['id'],
-			title=data['text'],
-			notes=data['notes'],
-			tags=data['tags'],
-			difficulty=data['priority']
-			)
-		new_daily.checklist = data['checklist']
-		new_daily.completed = data['completed']
-		new_daily.streak = data['streak']
-		new_daily.repeat = data['repeat']
-		new_daily.everyX = data['everyX']
-		new_daily.frequency = data['frequency']
-		return new_daily
-
-

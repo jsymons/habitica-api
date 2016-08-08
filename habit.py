@@ -7,15 +7,3 @@ class Habit(Task):
 		self.up = up
 		self.down = down
 
-	@classmethod
-	def data_import(cls,data):
-		new_habit = cls(
-			id=data['id'],
-			title=data['text'],
-			notes=data['notes'],
-			tags=data['tags'],
-			difficulty=data['priority']
-			)
-		new_habit.up = data['up']
-		new_habit.down = data['down']
-		return new_habit
