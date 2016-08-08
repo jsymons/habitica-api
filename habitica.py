@@ -12,8 +12,6 @@ class Connection():
 		
 	def post(self,url,data):
 		r = requests.post(BASE_URL+url, headers=self.headers, data=json.dumps(data))
-		if not r.json()['success']:
-			print(r.text)
 		return r.json()
 
 	def get(self,url,params=None):
@@ -26,6 +24,11 @@ class Connection():
 	def delete(self,url):
 		r = requests.delete(BASE_URL+url,headers=self.headers)
 		return r.json()
+
+	def put(self,url,data):
+		r = requests.put(BASE_URL+url, headers=self.headers, data=json.dumps(data))
+		return r.json()
+
 
 	def login(self,username,password):
 		credentials = {'username': username, 'password': password}
@@ -61,4 +64,7 @@ class Connection():
 		r = self.delete(request_url)
 		return r['success']
 
-
+	def modify_task(self,id,data):
+		request_url = 'tasks/%s' % (id)
+		r = self.put(request_url,data)
+		return r['success']
