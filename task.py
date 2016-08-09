@@ -59,6 +59,12 @@ class Task:
 			if self.type != 'habit':
 				self.update()
 
+	def score_checklist(self,check_id):
+		if self.type in ['daily', 'todo']:
+			if self.owner.h.score_checklist(self.id,check_id):
+				self.update()
+
+
 	def update(self):
 		updated_task = self.owner.h.get_task(self.id)
 		if updated_task is not None:

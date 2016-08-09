@@ -92,6 +92,11 @@ class Connection():
 		r = self.post(request_url)
 		return r['success']
 
+	def score_checklist(self,id,check_id):
+		request_url = 'tasks/%s/checklist/%s/score' %(id,check_id)
+		r = self.post(request_url)
+		return r['success']
+
 	def get_task(self,id):
 		request_url = 'tasks/%s' % (id)
 		r = self.get(request_url)
