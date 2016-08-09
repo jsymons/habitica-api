@@ -91,3 +91,11 @@ class Connection():
 		request_url = 'tasks/%s/score/%s' % (id,direction)
 		r = self.post(request_url)
 		return r['success']
+
+	def get_task(self,id):
+		request_url = 'tasks/%s' % (id)
+		r = self.get(request_url)
+		if r['success']:
+			return r['data']
+		else:
+			return None

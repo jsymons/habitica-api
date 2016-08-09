@@ -7,3 +7,8 @@ class Habit(Task):
 		self.up = up
 		self.down = down
 
+	def update(self):
+		updated_task = super().update()
+		if updated_task is not None:
+			self.up = updated_task.pop('up', None)
+			self.down = updated_task.pop('down', None)
