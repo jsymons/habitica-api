@@ -10,8 +10,11 @@ class Connection():
 		self.headers = JSON_HEADERS.copy()
 		self.login_status = False
 		
-	def post(self,url,data):
-		r = requests.post(BASE_URL+url, headers=self.headers, data=json.dumps(data))
+	def post(self,url,data=None):
+		if data is not None:
+			r = requests.post(BASE_URL+url, headers=self.headers, data=json.dumps(data))
+		else:
+			r = requests.post(BASE_URL+url, headers=self.headers)
 		return r.json()
 
 	def get(self,url,params=None):
@@ -82,4 +85,9 @@ class Connection():
 	def edit_checklist(self,id,checklist_item_id,data):
 		request_url = 'tasks/%s/checklist/%s' % (id,checklist_item_id)
 		r = self.put(request_url,data)
+		return r['success']
+
+	def score_task(self,id,direction='up'):
+		request_url = 'tasks/%s/score/%s' % (id,direction)
+		r = self.post(request_url)
 		return r['success']

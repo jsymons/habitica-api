@@ -54,4 +54,7 @@ class Task:
 			if self.owner.h.edit_checklist(self.id,id,updated_checklist_item):
 				self.owner.update_tasks()
 
-
+	def score(self,direction='up'):
+		if self.owner.h.score_task(self.id,direction):
+			if self.type != 'habit':
+				self.owner.update_tasks()
