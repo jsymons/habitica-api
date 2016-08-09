@@ -34,25 +34,29 @@ class Task:
 		if 'difficulty' in modified_data.keys():
 			modified_data['priority'] = modified_data['difficulty']
 			modified_data.pop('difficulty')
-		if self.owner.h.modify_task(self.id,modified_data):
-			self.update()
+		update = self.owner.h.modify_task(self.id,modified_data)
+		if update['success']:
+			self.update(updated_task=update['data'])
 
 	def add_to_checklist(self,text):
 		if self.type in ['daily','todo']:
 			checklist_item = {'text':text}
-			if self.owner.h.add_to_checklist(self.id,checklist_item):
-				self.update()
+			update = self.owner.h.add_to_checklist(self.id,checklist_item)
+			if update['success']:
+				self.update(updated_task=update['data'])
 
 	def delete_from_checklist(self,checklist_item_id):
 		if self.type in ['daily','todo']:
-			if self.owner.h.delete_from_checklist(self.id,checklist_item_id):
-				self.update()
+			update = self.owner.h.delete_from_checklist(self.id,checklist_item_id)
+			if update['success']:
+				self.update(updated_task=update['data'])
 
 	def edit_checklist(self,id,text):
 		if self.type in ['daily', 'todo']:
 			updated_checklist_item = {'text':text}
-			if self.owner.h.edit_checklist(self.id,id,updated_checklist_item):
-				self.update()
+			update = self.owner.h.edit_checklist(self.id,id,updated_checklist_item)
+			if update['success']:
+				self.update(updated_task=update['data'])
 
 	def score(self,direction='up'):
 		if self.owner.h.score_task(self.id,direction):
@@ -61,19 +65,21 @@ class Task:
 
 	def score_checklist(self,check_id):
 		if self.type in ['daily', 'todo']:
-			if self.owner.h.score_checklist(self.id,check_id):
-				self.update()
+			update = self.owner.h.score_checklist(self.id,check_id)
+			if update['success']:
+				self.update(updated_task=update['data'])
 
 
-	def update(self):
-		updated_task = self.owner.h.get_task(self.id)
-		if updated_task is not None:
-			self.title = updated_task.pop('text',None)
-			self.notes = updated_task.pop('notes',None)
-			self.tags = updated_task.pop('tags',None)
-			self.difficulty = updated_task.pop('priority',None)
-			return updated_task
-		else:
-			return None
+	def update(self,updated_task=None):
+		if updated_task is None:
+			updated_task = self.owner.h.get_task(self.id)
+		
+		self.title = updated_task.pop('text',None)
+		self.notes = updated_task.pop('notes',None)
+		self.tags = updated_task.pop('tags',None)
+		self.difficulty = updated_task.pop('priority',None)
+		return updated_task
+		
+			
 
 

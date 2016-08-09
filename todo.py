@@ -11,8 +11,8 @@ class ToDo(Task):
 		else:
 			self.due_date = due_date
 
-	def update(self):
-		updated_task = super().update()
+	def update(self,**kwargs):
+		updated_task = super().update(**kwargs)
 		if updated_task is not None:
 			self.checklist = updated_task.pop('checklist',None)
 			self.completed = updated_task.pop('completed',None)

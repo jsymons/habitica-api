@@ -31,8 +31,10 @@ class User():
 		if down is not None:
 			new_habit['down'] = down
 
-		if self.h.add_task(new_habit):
-			self.update_tasks(task_type=Task.HABIT)
+		update = self.h.add_task(new_habit)
+
+		if update['success']:
+			self.habits.append(Habit(owner=self,**update['data']))
 		
 
 	def add_daily(self,title,notes=None,tags=None,difficulty=None,repeat=None,everyX=None,frequency=None):
@@ -49,8 +51,11 @@ class User():
 			new_daily['everyX'] = everyX
 		if frequency:
 			new_daily['frequency'] = frequency
-		if self.h.add_task(new_daily):
-			self.update_tasks(task_type=Task.DAILY)
+
+		update = self.h.add_task(new_daily)
+
+		if update['success']:
+			self.dailies.append(Daily(owner=self,**update['data']))
 		
 
 
@@ -62,8 +67,11 @@ class User():
 			new_todo['date'] = date
 		if difficulty:
 			new_todo['priority'] = difficulty
-		if self.h.add_task(new_todo):
-			self.update_tasks(task_type=Task.TODO)
+
+		update = self.h.add_task(new_todo)
+
+		if update['success']:
+			self.todos.append(ToDo(owner=self,**update['data']))
 
 	def update_tasks(self,task_type=None):
 		if task_type is not None:
@@ -85,16 +93,13 @@ class User():
 
 			for task in tasks:
 				if task['type'] == 'habit':
-					habit = Habit(**task)
-					habit.owner = self
+					habit = Habit(owner=self,**task)
 					self.habits.append(habit)
 				elif task['type'] == 'daily':
-					daily = Daily(**task)
-					daily.owner = self
+					daily = Daily(owner=self,**task)
 					self.dailies.append(daily)
 				elif task['type'] == 'todo':
-					todo = ToDo(**task)
-					todo.owner = self
+					todo = ToDo(owner=self,**task)
 					self.todos.append(todo)
 
 

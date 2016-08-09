@@ -49,8 +49,8 @@ class Connection():
 			return None
 
 	def add_task(self,data):
-		r = self.post('tasks/user',data)
-		return r['success']
+		return self.post('tasks/user',data)
+		
 
 	def get_tasks(self,task_type=None):
 		if task_type:
@@ -69,23 +69,23 @@ class Connection():
 
 	def modify_task(self,id,data):
 		request_url = 'tasks/%s' % (id)
-		r = self.put(request_url,data)
-		return r['success']
+		return self.put(request_url,data)
+		
 
 	def add_to_checklist(self,id,data):
 		request_url = 'tasks/%s/checklist' % (id)
-		r = self.post(request_url,data)
-		return r['success']
+		return self.post(request_url,data)
+		
 
 	def delete_from_checklist(self,id,checklist_item_id):
 		request_url = 'tasks/%s/checklist/%s' % (id,checklist_item_id)
-		r = self.delete(request_url)
-		return r['success']
+		return self.delete(request_url)
+		
 
 	def edit_checklist(self,id,checklist_item_id,data):
 		request_url = 'tasks/%s/checklist/%s' % (id,checklist_item_id)
-		r = self.put(request_url,data)
-		return r['success']
+		return self.put(request_url,data)
+		
 
 	def score_task(self,id,direction='up'):
 		request_url = 'tasks/%s/score/%s' % (id,direction)
@@ -94,8 +94,8 @@ class Connection():
 
 	def score_checklist(self,id,check_id):
 		request_url = 'tasks/%s/checklist/%s/score' %(id,check_id)
-		r = self.post(request_url)
-		return r['success']
+		return self.post(request_url)
+		
 
 	def get_task(self,id):
 		request_url = 'tasks/%s' % (id)
