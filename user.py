@@ -20,60 +20,24 @@ class User():
 		else:
 			return False
 	
-	def add_habit(self,title,notes=None,tags=None,difficulty=None,up=None,down=None):
-		new_habit = {'text':title,'type':'habit'}
-		if notes is not None:
-			new_habit['notes'] = notes
-		if tags is not None:
-			new_habit['tags'] = tags
-		if difficulty is not None:
-			new_habit['priority'] = difficulty
-		if up is not None:
-			new_habit['up'] = up
-		if down is not None:
-			new_habit['down'] = down
-
-		update = Connection.active.add_task(new_habit)
-
-		if update['success']:
-			self.habits.append(Habit(owner=self,**update['data']))
+	def add_habit(self,**kwargs):
+		new_habit = Habit.add(owner=self,**kwargs)
+		if new_habit is not None:
+			self.habits.append(new_habit)
+		
 		
 
-	def add_daily(self,title,notes=None,tags=None,difficulty=None,repeat=None,everyX=None,frequency=None):
-		new_daily = {'text':title,'type':'daily'}
-		if notes:
-			new_daily['notes'] = notes
-		if tags:
-			new_daily['tags'] = tags
-		if difficulty:
-			new_daily['priority'] = difficulty
-		if repeat:
-			new_daily['repeat'] = repeat
-		if everyX:
-			new_daily['everyX'] = everyX
-		if frequency:
-			new_daily['frequency'] = frequency
-
-		update = Connection.active.add_task(new_daily)
-
-		if update['success']:
-			self.dailies.append(Daily(owner=self,**update['data']))
+	def add_daily(self,**kwargs):
+		new_daily = Daily.add(owner=self,**kwargs)
+		if new_daily is not None:
+			self.dailies.append(new_daily)
 		
 
 
-	def add_todo(self,title,notes=None,date=None,difficulty=None):
-		new_todo = {'text':title,'type':'todo'}
-		if notes:
-			new_todo['notes'] = notes
-		if date:
-			new_todo['date'] = date
-		if difficulty:
-			new_todo['priority'] = difficulty
-
-		update = Connection.active.add_task(new_todo)
-
-		if update['success']:
-			self.todos.append(ToDo(owner=self,**update['data']))
+	def add_todo(self,**kwargs):
+		new_todo = ToDo.add(owner=self,**kwargs)
+		if new_todo is not None:
+			self.todos.append(new_todo)
 
 	def update_tasks(self,task_type=None):
 		if task_type is not None:

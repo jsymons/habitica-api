@@ -1,4 +1,5 @@
 from .task import Task
+from .connection import Connection
 
 class Daily(Task):
 
@@ -38,3 +39,26 @@ class Daily(Task):
 			self.repeat = updated_task.pop('repeat',None)
 			self.everyX = updated_task.pop('everyX',None)
 			self.frequency = updated_task.pop('frequency',None)
+
+	@classmethod
+	def add(cls,title,notes=None,tags=None,difficulty=None,repeat=None,everyX=None,frequency=None,owner=None):
+		new_daily = {'text':title,'type':'daily'}
+		if notes:
+			new_daily['notes'] = notes
+		if tags:
+			new_daily['tags'] = tags
+		if difficulty:
+			new_daily['priority'] = difficulty
+		if repeat:
+			new_daily['repeat'] = repeat
+		if everyX:
+			new_daily['everyX'] = everyX
+		if frequency:
+			new_daily['frequency'] = frequency
+
+		update = Connection.active.add_task(new_daily)
+
+		if update['success']:
+			return cls(owner=owner,**update['data'])
+		else:
+			return None
