@@ -8,8 +8,7 @@ class Task:
 	TODO = 'todos'
 	HABIT = 'habits'
 
-	def __init__(self,owner=None,id=None,title=None,notes=None,tags=None,difficulty=1.5,type=None,**kwargs):
-		self.owner = owner
+	def __init__(self,id=None,title=None,notes=None,tags=None,difficulty=1.5,type=None,**kwargs):
 		self.id = id
 		if 'text' in kwargs.keys():
 			self.title = kwargs['text']
@@ -25,7 +24,9 @@ class Task:
 
 	def delete(self):
 		if Connection.active.delete_task(self.id):
-			self.owner.update_tasks()
+			return True
+		else:
+			return False
 
 	def modify(self,data):
 		modified_data = data.copy()

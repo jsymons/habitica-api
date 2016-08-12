@@ -11,6 +11,8 @@ class Daily(Task):
 # of the week) or everyX(every x days) to see if the task
 # is active
 
+	all = []
+
 
 	def __init__(
 		self,
@@ -29,6 +31,7 @@ class Daily(Task):
 		self.repeat = repeat
 		self.everyX = everyX
 		self.frequency = frequency
+		Daily.all.append(self)
 
 	def update(self,**kwargs):
 		updated_task = super().update(**kwargs)
@@ -40,8 +43,13 @@ class Daily(Task):
 			self.everyX = updated_task.pop('everyX',None)
 			self.frequency = updated_task.pop('frequency',None)
 
+	def delete(self):
+		if super().delete():
+			Daily.update_all()
+
+
 	@classmethod
-	def add(cls,title,notes=None,tags=None,difficulty=None,repeat=None,everyX=None,frequency=None,owner=None):
+	def add(cls,title,notes=None,tags=None,difficulty=None,repeat=None,everyX=None,frequency=None):
 		new_daily = {'text':title,'type':'daily'}
 		if notes:
 			new_daily['notes'] = notes
@@ -59,6 +67,17 @@ class Daily(Task):
 		update = Connection.active.add_task(new_daily)
 
 		if update['success']:
-			return cls(owner=owner,**update['data'])
+			cls(**update['data'])
+			return True
 		else:
-			return None
+			return False
+
+	@classmethod
+	def update_all(cls):
+		task_type = 'dailys'
+		dailies = Connection.active.get_tasks(task_type)
+		if dailies is not None:
+			Daily.all = []
+			for daily in dailies:
+				Daily(**daily)
+

@@ -3,10 +3,13 @@ from .connection import Connection
 
 class Habit(Task):
 
+	all = []
+
 	def __init__(self,up=None,down=None,**kwargs):
 		super().__init__(**kwargs)
 		self.up = up
 		self.down = down
+		Habit.all.append(self)
 
 	def update(self,**kwargs):
 		updated_task = super().update(**kwargs)
@@ -14,8 +17,12 @@ class Habit(Task):
 			self.up = updated_task.pop('up', None)
 			self.down = updated_task.pop('down', None)
 
+	def delete(self):
+		if super().delete():
+			Habit.update_all()
+
 	@classmethod
-	def add(cls,title,notes=None,tags=None,difficulty=None,up=None,down=None,owner=None):
+	def add(cls,title,notes=None,tags=None,difficulty=None,up=None,down=None):
 		new_habit = {'text':title,'type':'habit'}
 		if notes is not None:
 			new_habit['notes'] = notes
@@ -31,6 +38,16 @@ class Habit(Task):
 		update = Connection.active.add_task(new_habit)
 
 		if update['success']:
-			return cls(owner=owner,**update['data'])
+			cls(**update['data'])
+			return True
 		else:
-			return None
+			return False
+
+	@classmethod
+	def update_all(cls):
+		task_type = 'habits'
+		habits = Connection.active.get_tasks(task_type)
+		if habits is not None:
+			Habit.all = []
+			for habit in habits:
+				Habit(**habit)
