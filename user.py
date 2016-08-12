@@ -4,14 +4,16 @@ from .task import Task
 from .habit import Habit
 from .daily import Daily
 from .todo import ToDo
+from .connection import Connection
 
 class User():
 
-	def __init__(self,habitica_connection):
-		self.h = habitica_connection
+	def __init__(self):
+		pass
+		
 
 	def update_status(self):
-		status = self.h.get_status()
+		status = Connection.active.get_status()
 		if status is not None:
 			self.profile = status
 			return True
@@ -31,7 +33,7 @@ class User():
 		if down is not None:
 			new_habit['down'] = down
 
-		update = self.h.add_task(new_habit)
+		update = Connection.active.add_task(new_habit)
 
 		if update['success']:
 			self.habits.append(Habit(owner=self,**update['data']))
@@ -52,7 +54,7 @@ class User():
 		if frequency:
 			new_daily['frequency'] = frequency
 
-		update = self.h.add_task(new_daily)
+		update = Connection.active.add_task(new_daily)
 
 		if update['success']:
 			self.dailies.append(Daily(owner=self,**update['data']))
@@ -68,16 +70,16 @@ class User():
 		if difficulty:
 			new_todo['priority'] = difficulty
 
-		update = self.h.add_task(new_todo)
+		update = Connection.active.add_task(new_todo)
 
 		if update['success']:
 			self.todos.append(ToDo(owner=self,**update['data']))
 
 	def update_tasks(self,task_type=None):
 		if task_type is not None:
-			tasks = self.h.get_tasks(task_type)
+			tasks = Connection.active.get_tasks(task_type)
 		else:
-			tasks = self.h.get_tasks()
+			tasks = Connection.active.get_tasks()
 
 		if tasks is not None:
 			if task_type == Task.HABIT:

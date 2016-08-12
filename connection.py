@@ -6,11 +6,15 @@ BASE_URL = "https://habitica.com/api/v3/"
 
 class Connection():
 
+	active = None
+
 	def __init__(self):
 		self.headers = JSON_HEADERS.copy()
 		self.login_status = False
 		
 	def post(self,url,data=None):
+		if not self.login_status:
+			raise NotLoggedInException()
 		if data is not None:
 			r = requests.post(BASE_URL+url, headers=self.headers, data=json.dumps(data))
 		else:
@@ -18,6 +22,8 @@ class Connection():
 		return r.json()
 
 	def get(self,url,params=None):
+		if not self.login_status:
+			raise NotLoggedInException()
 		if params is not None:
 			r = requests.get(BASE_URL+url, headers=self.headers,params=params)
 		else:
@@ -25,21 +31,28 @@ class Connection():
 		return r.json()
 
 	def delete(self,url):
+		if not self.login_status:
+			raise NotLoggedInException()
 		r = requests.delete(BASE_URL+url,headers=self.headers)
 		return r.json()
 
 	def put(self,url,data):
+		if not self.login_status:
+			raise NotLoggedInException()
 		r = requests.put(BASE_URL+url, headers=self.headers, data=json.dumps(data))
 		return r.json()
 
 
 	def login(self,username,password):
 		credentials = {'username': username, 'password': password}
-		r = self.post('user/auth/local/login',credentials)
+		login_url = 'user/auth/local/login'
+		r = requests.post(BASE_URL+login_url, headers=self.headers, data=json.dumps(credentials)).json()
 		if r['success']:
 			self.headers['x-api-user'] = r['data']['id']
 			self.headers['x-api-key'] = r['data']['apiToken']
 			self.login_status = True
+
+		Connection.active = self
 
 	def get_status(self):
 		r = self.get('user')
@@ -104,3 +117,7 @@ class Connection():
 			return r['data']
 		else:
 			return None
+
+
+class NotLoggedInException(Exception):
+	pass
