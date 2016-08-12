@@ -4,6 +4,7 @@ from .task import Task
 from .habit import Habit
 from .daily import Daily
 from .todo import ToDo
+from .tag import Tag
 from .connection import Connection
 
 class User():
@@ -59,14 +60,18 @@ class User():
 
 			for task in tasks:
 				if task['type'] == 'habit':
-					habit = Habit(owner=self,**task)
-					self.habits.append(habit)
+					self.habits.append(Habit(owner=self,**task))
 				elif task['type'] == 'daily':
-					daily = Daily(owner=self,**task)
-					self.dailies.append(daily)
+					self.dailies.append(Daily(owner=self,**task))
 				elif task['type'] == 'todo':
-					todo = ToDo(owner=self,**task)
-					self.todos.append(todo)
+					self.todos.append(ToDo(owner=self,**task))
+
+	def update_tags(self):
+		tags = Connection.active.get_tags()
+		if tags is not None:
+			self.tags = []
+			for tag in tags:
+				self.tags.append(Tag(**tag))
 
 
 

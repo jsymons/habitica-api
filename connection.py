@@ -118,6 +118,14 @@ class Connection():
 		else:
 			return None
 
+	def get_tags(self):
+		request_url = 'tags'
+		r = self.get(request_url)
+		if r['success']:
+			return r['data']
+		else:
+			return None
+
 
 class NotLoggedInException(Exception):
 	pass
