@@ -81,6 +81,12 @@ class Task:
 		self.tags = updated_task.pop('tags',None)
 		self.difficulty = updated_task.pop('priority',None)
 		return updated_task
+
+	def add_tag(self,tag):
+		self.update(updated_task=Connection.active.add_tag_to_task(self.id,tag.id))
+
+	def remove_tag(self,tag):
+		self.update(updated_task=Connection.active.remove_tag_from_task(self.id,tag.id))
 		
 			
 

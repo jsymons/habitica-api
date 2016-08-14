@@ -39,10 +39,9 @@ class ToDo(Task):
 		update = Connection.active.add_task(new_todo)
 
 		if update['success']:
-			cls(**update['data'])
-			return True
+			return cls(**update['data'])
 		else:
-			return False
+			return None
 
 	@classmethod
 	def update_all(cls):

@@ -16,4 +16,28 @@ class Tag():
 		if tags is not None:
 			Tag.all = []
 			for tag in tags:
-				Tag(**tag)
+				cls(**tag)
+
+	@classmethod
+	def add(cls,name):
+		data = {}
+		data['name'] = name
+		new_tag = Connection.active.add_tag(data)
+		if new_tag is not None:
+			return cls(**new_tag)
+		else:
+			return None
+
+	def delete(self):
+		if Connection.active.delete_tag(self.id):
+			for tag in [tag for tag in Tag.all if tag.id == self.id]:
+				Tag.all.remove(tag)
+
+	def rename(self,new_name):
+		data = {}
+		data['name'] = new_name
+		if Connection.active.rename_tag(self.id,data):
+			self.name = new_name
+			return True
+		else:
+			return False

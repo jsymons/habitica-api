@@ -126,6 +126,40 @@ class Connection():
 		else:
 			return None
 
+	def add_tag(self,data):
+		request_url = 'tags'
+		r = self.post(request_url,data)
+		if r['success']:
+			return r['data']
+		else:
+			return None
+
+	def delete_tag(self,id):
+		request_url = 'tags/%s' % (id)
+		r = self.delete(request_url)
+		return r['success']
+
+	def rename_tag(self,id,data):
+		request_url = 'tags/%s' % (id)
+		r = self.put(request_url,data)
+		return r['success']
+
+	def add_tag_to_task(self,taskid,tagid):
+		request_url = 'tasks/%s/tags/%s' % (taskid,tagid)
+		r = self.post(request_url)
+		if r['success']:
+			return r['data']
+		else:
+			return None
+
+	def remove_tag_from_task(self,taskid,tagid):
+		request_url = 'tasks/%s/tags/%s' % (taskid,tagid)
+		r = self.delete(request_url)
+		if r['success']:
+			return r['data']
+		else:
+			return None
+
 
 class NotLoggedInException(Exception):
 	pass
