@@ -13,6 +13,8 @@ class User():
 
 	def __init__(self):
 		User.active = self
+		self.update_status()
+		Connection.user = self
 		
 
 	def update_status(self):
@@ -25,7 +27,16 @@ class User():
 			self.maxmp = status['stats']['maxMP']
 			self.xp = status['stats']['exp']
 			self.xp_to_level = status['stats']['toNextLevel']
+			self.gp = status['stats']['gp']
 			return True
 		else:
 			return False
+		
+
+	def buy_health_potion(self):
+		statsblock = Connection.active.buy_health_potion()
+		if statsblock:
+			self.hp = statsblock['hp']
+			self.gp = statsblock['gp']
+
 	

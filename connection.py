@@ -7,6 +7,7 @@ BASE_URL = "https://habitica.com/api/v3/"
 class Connection():
 
 	active = None
+	user = None
 
 	def __init__(self):
 		self.headers = JSON_HEADERS.copy()
@@ -155,6 +156,14 @@ class Connection():
 	def remove_tag_from_task(self,taskid,tagid):
 		request_url = 'tasks/%s/tags/%s' % (taskid,tagid)
 		r = self.delete(request_url)
+		if r['success']:
+			return r['data']
+		else:
+			return None
+
+	def buy_health_potion(self):
+		request_url = 'user/buy-health-potion'
+		r = self.post(request_url)
 		if r['success']:
 			return r['data']
 		else:

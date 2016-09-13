@@ -64,6 +64,7 @@ class Task:
 		if Connection.active.score_task(self.id,direction):
 			if self.type != 'habit':
 				self.update()
+			Connection.user.update_status()
 
 	def score_checklist(self,check_id):
 		if self.type in ['daily', 'todo']:
