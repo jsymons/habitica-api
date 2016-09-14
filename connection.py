@@ -169,6 +169,22 @@ class Connection():
 		else:
 			return None
 
+	def buy_item(self,key):
+		request_url = 'user/buy-gear/%s' % (key)
+		r = self.post(request_url)
+		if r['success']:
+			return r['data']['items']
+		else:
+			return None
+
+	def get_buy_list(self):
+		request_url = 'user/inventory/buy'
+		r = self.get(request_url)
+		if r['success']:
+			return r['data']
+		else:
+			return None
+
 
 class NotLoggedInException(Exception):
 	pass
