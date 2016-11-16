@@ -25,7 +25,7 @@ class TestAPILogin(unittest.TestCase):
 class TestUserProfile(unittest.TestCase):
 
     def setUp(self):
-        connection = Connection()
+        connection = api.Authentication
         connection.login(username, password)
         self.user = User()
 

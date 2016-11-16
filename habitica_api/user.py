@@ -5,7 +5,7 @@ from .habit import Habit
 from .daily import Daily
 from .todo import ToDo
 from .tag import Tag
-from .connection import Connection
+import habitica_api.api as API
 from .item import Item
 
 
@@ -17,11 +17,10 @@ class User():
         User.active = self
         self.buy_list = []
         self.inventory = {}
-        Connection.user = self
         self.update_status()
 
     def update_status(self):
-        status = Connection.active.get_status()
+        status = API.User.get_profile()
         if status is not None:
             self.profile = status
             self.hp = status['stats']['hp']

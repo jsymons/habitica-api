@@ -13,8 +13,8 @@ class Authentication(object):
     def login(cls, username, password):
         auth = User.login(username, password)
         print('logged in')
-        cls.headers['x-api-user'] = auth['data']['id']
-        cls.headers['x-api-key'] = auth['data']['apiToken']
+        cls.headers['x-api-user'] = auth['id']
+        cls.headers['x-api-key'] = auth['apiToken']
         cls.logged_in = True
 
     @classmethod
@@ -55,65 +55,24 @@ def apiCall(request_type=None, resource=None,
             request_data['headers'] = Authentication.headers
             data = f(*args, **kwargs)
             res = resource
-            for d in data:
-                if ':' + d in res:
-                    res = res.replace(':' + d, data[d])
-            request_data['url'] = BASE_URL + res
-            if request_type == 'get':
-                request_data['params'] = data
-            else:
-                request_data['data'] = json.dumps(data)
+            if data is not None:
+                for d in data:
+                    if ':' + d in res:
+                        res = res.replace(':' + d, data[d])
+                if request_type == 'get':
+                    request_data['params'] = data
+                else:
+                    request_data['data'] = json.dumps(data)
 
+            request_data['url'] = BASE_URL + res
             r = request_types[request_type](**request_data)
             if r.status_code == 200:
-                return r.json()
+                return r.json().get('data', r.json())
             else:
                 raise TransactionError(r)
 
         return data_handler
     return wrap
-
-'''
-class apiCall(object):
-    request_types = {'get': requests.get,
-                     'delete': requests.delete,
-                     'post': requests.post,
-                     'put': requests.put}
-
-    def __init__(self, request_type=None, resource=None,
-                 requires_authentication=True):
-        if request_type not in self.request_types:
-            raise ValueError("Invalid request type: {}".format(request_type))
-        self.request_type = request_type
-        self.requires_authentication = requires_authentication
-        self.resource = resource
-        functools.update_wrapper(self, func)
-
-    def __call__(self, f, *args, **kwargs):
-        if self.requires_authentication and not Authentication.logged_in:
-            raise NotLoggedInError()
-        request_data = self._data_handler(f, *args, **kwargs)
-        r = self.request_types[self.request_type](self._data_handler())
-        if r.status_code == 200:
-            return r.json()
-        else:
-            raise TransactionError(r)
-
-    def _data_handler(self,f, *args, **kwargs):
-        request_data = {}
-        request_data['headers'] = Authentication.headers
-        data = f(*args, **kwargs)
-        res = self.resource
-        for d in data:
-            if ':' + d in res:
-                res = res.replace(':' + d, data[d])
-        request_data['url'] = BASE_URL + res
-        if self.request_type == 'get':
-            request_data['params'] = data
-        else:
-            request_data['data'] = json.dumps(data)
-        return request_data
-'''
 
 
 class User(object):
