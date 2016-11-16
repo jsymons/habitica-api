@@ -2,7 +2,7 @@ import unittest
 
 from habitica_api.user import User
 from habitica_api import task
-from habitica_api.connection import Connection
+from habitica_api import api
 from habitica_api.daily import Daily
 from habitica_api.habit import Habit
 from habitica_api.todo import ToDo
@@ -17,9 +17,9 @@ loginfile.close()
 class TestAPILogin(unittest.TestCase):
 
     def test_login(self):
-        connection = Connection()
+        connection = api.Authentication
         connection.login(username, password)
-        self.assertTrue(connection.login_status)
+        self.assertTrue(connection.logged_in)
 
 
 class TestUserProfile(unittest.TestCase):

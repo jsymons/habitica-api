@@ -1,6 +1,6 @@
 import requests
 import json
-import functools
+from functools import wraps
 
 BASE_URL = "https://habitica.com/api/v3/"
 
@@ -9,41 +9,20 @@ class Authentication(object):
     headers = {'content-type': 'application/json'}
     logged_in = False
 
-    @staticmethod
-    def login(username, password):
-        credentials = {'username': username, 'password': password}
-        login_url = 'user/auth/local/login'
-        r = requests.post(BASE_URL + login_url,
-                          headers=self.headers,
-                          data=json.dumps(credentials))
-        if r.status_code == 200:
-            auth = r.json()
-            self.headers['x-api-user'] = auth['data']['id']
-            self.headers['x-api-key'] = auth['data']['apiToken']
-            self.login_status = True
+    @classmethod
+    def login(cls, username, password):
+        auth = User.login(username, password)
+        print('logged in')
+        cls.headers['x-api-user'] = auth['data']['id']
+        cls.headers['x-api-key'] = auth['data']['apiToken']
+        cls.logged_in = True
 
-    @staticmethod
-    def register_new_user(username, email, password, confirm_password):
-        registration_details = {'username': username,
-                                'email': email,
-                                'password': password,
-                                'confirmPassword': confirm_password
-                                }
-        register_url = 'user/auth/local/register'
-        r = requests.post(BASE_URL + register_url,
-                          headers=self.headers,
-                          data=json.dumps(registration_details))
-        if r.status_code == 200:
-            return r.json()
-        else:
-            raise TransactionError(r)
-
-    @staticmethod
-    def logout():
+    @classmethod
+    def logout(cls):
         if logged_in:
-            self.headers.pop('x-api-user')
-            self.headers.pop('x-api-key')
-            self.logged_in = False
+            cls.headers.pop('x-api-user')
+            cls.headers.pop('x-api-key')
+            cls.logged_in = False
 
 
 class NotLoggedInError(Exception):
@@ -54,35 +33,74 @@ class TransactionError(Exception):
     pass
 
 
+def apiCall(request_type=None, resource=None,
+            requires_authentication=True):
+    request_types = {'get': requests.get,
+                     'delete': requests.delete,
+                     'post': requests.post,
+                     'put': requests.put}
+
+    def wrap(f):
+        print(f.__name__)
+        if request_type not in request_types:
+            raise ValueError('Invalid request type: {}'.format(request_type))
+
+        @wraps(f)
+        def data_handler(*args, **kwargs):
+            if requires_authentication is True and \
+               Authentication.logged_in is False:
+                raise NotLoggedInError()
+
+            request_data = {}
+            request_data['headers'] = Authentication.headers
+            data = f(*args, **kwargs)
+            res = resource
+            for d in data:
+                if ':' + d in res:
+                    res = res.replace(':' + d, data[d])
+            request_data['url'] = BASE_URL + res
+            if request_type == 'get':
+                request_data['params'] = data
+            else:
+                request_data['data'] = json.dumps(data)
+
+            r = request_types[request_type](**request_data)
+            if r.status_code == 200:
+                return r.json()
+            else:
+                raise TransactionError(r)
+
+        return data_handler
+    return wrap
+
+'''
 class apiCall(object):
     request_types = {'get': requests.get,
                      'delete': requests.delete,
                      'post': requests.post,
                      'put': requests.put}
 
-    def __init__(self, func, request_type=None, resource=None,
+    def __init__(self, request_type=None, resource=None,
                  requires_authentication=True):
-        if request_type not in request_types:
+        if request_type not in self.request_types:
             raise ValueError("Invalid request type: {}".format(request_type))
-        self.func = func
         self.request_type = request_type
         self.requires_authentication = requires_authentication
         self.resource = resource
         functools.update_wrapper(self, func)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, f, *args, **kwargs):
         if self.requires_authentication and not Authentication.logged_in:
             raise NotLoggedInError()
-        request_data = self._data_handler(self.func, *args, **kwargs)
+        request_data = self._data_handler(f, *args, **kwargs)
         r = self.request_types[self.request_type](self._data_handler())
         if r.status_code == 200:
             return r.json()
         else:
             raise TransactionError(r)
 
-    def _data_handler(self, *args, **kwargs):
+    def _data_handler(self,f, *args, **kwargs):
         request_data = {}
-        # f.__name__.replace converts method name to proper url
         request_data['headers'] = Authentication.headers
         data = f(*args, **kwargs)
         res = self.resource
@@ -95,6 +113,7 @@ class apiCall(object):
         else:
             request_data['data'] = json.dumps(data)
         return request_data
+'''
 
 
 class User(object):
@@ -248,6 +267,13 @@ class User(object):
 
     @staticmethod
     @apiCall(request_type='post',
+             resource='user/auth/local/login',
+             requires_authentication=False)
+    def login(username, password):
+        return {'username': username, 'password': password}
+
+    @staticmethod
+    @apiCall(request_type='post',
              resource='user/mark-pms-read')
     def mark_pms_read():
         pass
@@ -277,6 +303,17 @@ class User(object):
              resource='user/read-card/:cardType')
     def read_card(card_type):
         return {'cardType': card_type}
+
+    @staticmethod
+    @apiCall(request_type='post',
+             resource='user/auth/local/register',
+             requires_authentication=False)
+    def register_new_user(username, email, password, confirm_password):
+        return {'username': username,
+                'email': email,
+                'password': password,
+                'confirmPassword': confirm_password
+                }
 
     @staticmethod
     @apiCall(request_type='post',
