@@ -1,52 +1,26 @@
 from .task import Task
-from .connection import Connection
+from habitica_api import api
+
 
 class Habit(Task):
 
-	all = []
+    @classmethod
+    def new(cls, **kwargs):
+        kwargs['type'] = 'habit'
+        update = api.Task.new(kwargs)
+        if update is not None:
+            return cls(**update)
+        else:
+            return None
 
-	def __init__(self,up=None,down=None,**kwargs):
-		super().__init__(**kwargs)
-		self.up = up
-		self.down = down
-		Habit.all.append(self)
 
-	def update(self,**kwargs):
-		updated_task = super().update(**kwargs)
-		if updated_task is not None:
-			self.up = updated_task.pop('up', None)
-			self.down = updated_task.pop('down', None)
+class Habits(object):
+    def __init__(self):
+        data = api.Task.get_all(type_="habits")
+        self.habits = []
+        for hab in data:
+            self.habits.append(Habit(**hab))
 
-	def delete(self):
-		if super().delete():
-			Habit.update_all()
-
-	@classmethod
-	def add(cls,title,notes=None,tags=None,difficulty=None,up=None,down=None):
-		new_habit = {'text':title,'type':'habit'}
-		if notes is not None:
-			new_habit['notes'] = notes
-		if tags is not None:
-			new_habit['tags'] = tags
-		if difficulty is not None:
-			new_habit['priority'] = difficulty
-		if up is not None:
-			new_habit['up'] = up
-		if down is not None:
-			new_habit['down'] = down
-
-		update = Connection.active.add_task(new_habit)
-
-		if update['success']:
-			return cls(**update['data'])
-		else:
-			return None
-
-	@classmethod
-	def update_all(cls):
-		task_type = 'habits'
-		habits = Connection.active.get_tasks(task_type)
-		if habits is not None:
-			Habit.all = []
-			for habit in habits:
-				Habit(**habit)
+    def __iter__(self):
+        for hab in self.habits:
+            yield hab

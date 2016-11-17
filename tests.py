@@ -4,7 +4,7 @@ from habitica_api.user import User
 from habitica_api import task
 from habitica_api import api
 from habitica_api.daily import Daily
-from habitica_api.habit import Habit
+from habitica_api.habit import Habit, Habits
 from habitica_api.todo import ToDo
 from habitica_api.tag import Tag
 
@@ -45,61 +45,60 @@ class TestUserProfile(unittest.TestCase):
 class TestHabits(unittest.TestCase):
 
     def setUp(self):
-        connection = Connection()
+        connection = api.Authentication
         connection.login(username, password)
         self.user = User()
-        Habit.update_all()
 
     def test_read_habits(self):
         test_task_name = "Test habit"
-        self.assertIn(test_task_name, [habit.title for habit in Habit.all])
+        self.assertIn(test_task_name, [habit.text for habit in Habits()])
 
     def test_add_habit(self):
         test_values = {}
-        test_values['title'] = "Test creation habit"
+        test_values['text'] = "Test creation habit"
         test_values['notes'] = "Test habit notes"
         test_values['up'] = True
         test_values['down'] = False
-        test_values['difficulty'] = 1.5
+        test_values['priority'] = 1.5
 
-        habit = Habit.add(**test_values)
-        self.assertIn(habit, Habit.all)
-        self.assertEqual(habit.title, test_values['title'])
+        habit = Habit.new(**test_values)
+        self.assertIn(habit.id, [h.id for h in Habits()])
+        self.assertEqual(habit.text, test_values['text'])
         self.assertEqual(habit.notes, test_values['notes'],
                          'Notes do not match')
         self.assertEqual(habit.up, test_values['up'], 'Up is set to false')
         self.assertEqual(habit.down, test_values['down'],
                          'Down is set to true')
-        self.assertEqual(habit.difficulty, test_values['difficulty'],
+        self.assertEqual(habit.priority, test_values['priority'],
                          'Difficulty does not match')
         habit.delete()
 
     def test_delete_habit(self):
-        habit = Habit.add(title='Test deletion habit')
+        habit = Habit.new(text='Test deletion habit')
         habit.delete()
-        self.assertNotIn(habit, Habit.all)
+        self.assertNotIn(habit.id, [h.id for h in Habits()])
 
     def test_edit_habit(self):
         test_values = {}
-        test_values['title'] = "Test modification habit"
+        test_values['text'] = "Test modification habit"
         test_values['notes'] = "Test habit notes"
         test_values['up'] = True
         test_values['down'] = False
-        test_values['difficulty'] = 1.5
-        habit = Habit.add(**test_values)
+        test_values['priority'] = 1.5
+        habit = Habit.new(**test_values)
         edited_task = {}
-        edited_task['title'] = "Test modified habit"
+        edited_task['text'] = "Test modified habit"
         edited_task['notes'] = "Modified notes"
         edited_task['up'] = False
         edited_task['down'] = True
-        edited_task['difficulty'] = 0.1
+        edited_task['priority'] = 0.1
         habit.modify(edited_task)
-        self.assertNotEqual(test_values['title'], habit.title)
-        self.assertEqual(edited_task['title'], habit.title)
+        self.assertNotEqual(test_values['text'], habit.text)
+        self.assertEqual(edited_task['text'], habit.text)
         self.assertEqual(habit.notes, edited_task['notes'])
         self.assertEqual(habit.up, edited_task['up'])
         self.assertEqual(habit.down, edited_task['down'])
-        self.assertEqual(habit.difficulty, edited_task['difficulty'])
+        self.assertEqual(habit.priority, edited_task['priority'])
         habit.delete()
 
 
