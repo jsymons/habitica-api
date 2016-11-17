@@ -8,6 +8,8 @@ from habitica_api.habit import Habit
 from habitica_api.todo import ToDo
 from habitica_api.tag import Tag
 
+api.BASE_URL = "http://localhost:3000/api/v3/"
+
 loginfile = open('test_credentials')
 username = loginfile.readline().strip()
 password = loginfile.readline().strip()
