@@ -1,5 +1,5 @@
 import requests
-from habitica_api import api
+from . import API
 
 
 def updates_task(f):
@@ -20,30 +20,30 @@ class Task(object):
         self._import(**kwargs)
 
     def delete(self):
-        api.Task.delete(self.id)
+        API.Task.delete(self.id)
 
     @updates_task
     def modify(self, data):
-        return api.Task.update(self.id, data)
+        return API.Task.update(self.id, data)
 
     @updates_task
     def add_to_checklist(self, text):
-        return api.Task.add_to_checklist(self.id, text)
+        return API.Task.add_to_checklist(self.id, text)
 
     @updates_task
     def delete_from_checklist(self, check_id):
-        return api.Task.delete_from_checklist(self.id, check_id)
+        return API.Task.delete_from_checklist(self.id, check_id)
 
     @updates_task
     def update_checklist_item(self, id, text):
-        update = api.Task.update_checklist_item(self.id, text)
+        update = API.Task.update_checklist_item(self.id, text)
 
     def score(self, direction='up'):
-        api.Task.score(self.id, direction)
+        API.Task.score(self.id, direction)
 
     @updates_task
     def score_checklist_item(self, check_id):
-        return api.Task.score_checklist_item(self.id, check_id)
+        return API.Task.score_checklist_item(self.id, check_id)
 
     def _import(self, **kwargs):
         for k in kwargs:

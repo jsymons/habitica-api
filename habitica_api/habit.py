@@ -1,5 +1,5 @@
 from .task import Task
-from habitica_api import api
+from . import API
 
 
 class Habit(Task):
@@ -7,7 +7,7 @@ class Habit(Task):
     @classmethod
     def new(cls, **kwargs):
         kwargs['type'] = 'habit'
-        update = api.Task.new(kwargs)
+        update = API.Task.new(kwargs)
         if update is not None:
             return cls(**update)
         else:
@@ -16,7 +16,7 @@ class Habit(Task):
 
 class Habits(object):
     def __init__(self):
-        data = api.Task.get_all(type_="habits")
+        data = API.Task.get_all(type_="habits")
         self.habits = []
         for hab in data:
             self.habits.append(Habit(**hab))

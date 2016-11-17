@@ -2,13 +2,13 @@ import unittest
 
 from habitica_api.user import User
 from habitica_api import task
-from habitica_api import api
+from habitica_api import API
 from habitica_api.daily import Daily
 from habitica_api.habit import Habit, Habits
 from habitica_api.todo import ToDo
 from habitica_api.tag import Tag
 
-api.BASE_URL = "http://localhost:3000/api/v3/"
+API.BASE_URL = "http://localhost:3000/api/v3/"
 
 loginfile = open('test_credentials')
 username = loginfile.readline().strip()
@@ -19,16 +19,16 @@ loginfile.close()
 class TestAPILogin(unittest.TestCase):
 
     def test_login(self):
-        connection = api.Authentication
-        connection.login(username, password)
-        self.assertTrue(connection.logged_in)
+        auth = API.Authentication
+        auth.login(username, password)
+        self.assertTrue(auth.logged_in)
 
 
 class TestUserProfile(unittest.TestCase):
 
     def setUp(self):
-        connection = api.Authentication
-        connection.login(username, password)
+        auth = API.Authentication
+        auth.login(username, password)
         self.user = User()
 
     def test_status_update(self):
@@ -45,8 +45,8 @@ class TestUserProfile(unittest.TestCase):
 class TestHabits(unittest.TestCase):
 
     def setUp(self):
-        connection = api.Authentication
-        connection.login(username, password)
+        auth = API.Authentication
+        auth.login(username, password)
         self.user = User()
 
     def test_read_habits(self):

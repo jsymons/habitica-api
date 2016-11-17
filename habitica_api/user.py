@@ -5,7 +5,7 @@ from .habit import Habit
 from .daily import Daily
 from .todo import ToDo
 from .tag import Tag
-import habitica_api.api as API
+from . import API
 from .item import Item
 
 
