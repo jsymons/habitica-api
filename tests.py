@@ -5,7 +5,7 @@ from habitica_api import task
 from habitica_api import API
 from habitica_api.daily import Daily, Dailys
 from habitica_api.habit import Habit, Habits
-from habitica_api.todo import ToDo
+from habitica_api.todo import ToDo, ToDos
 from habitica_api.tag import Tag
 
 API.BASE_URL = "http://localhost:3000/api/v3/"
@@ -150,51 +150,45 @@ class TestDailys(unittest.TestCase):
     def test_delete_daily(self):
         daily = Daily.new(text='Test deletion daily')
         daily.delete()
-        self.assertNotIn(daily, Dailys())
+        self.assertNotIn(daily.id, [d.id for d in Dailys()])
 
 
-class TestTodos(unittest.TestCase):
+class TestToDos(unittest.TestCase):
     def setUp(self):
-        connection = Connection()
-        connection.login(username, password)
-        self.user = User()
-        ToDo.update_all()
+        auth = API.Authentication
+        auth.login(username, password)
 
     def test_read_todos(self):
         test_task_name = "Test todo"
-        self.assertIn(test_task_name, [todo.title for todo in ToDo.all])
+        self.assertIn(test_task_name, [todo.text for todo in ToDos()])
 
     def test_add_todo(self):
         test_values = {}
-        test_values['title'] = "Test creation todo"
+        test_values['text'] = "Test creation todo"
         test_values['notes'] = "Test notes"
         test_values['date'] = "2016-12-25"
-        test_values['difficulty'] = 2
-        todo = ToDo.add(**test_values)
-        self.assertIn(todo, ToDo.all)
-        self.assertEqual(todo.title, test_values['title'])
+        test_values['priority'] = 2
+        todo = ToDo.new(**test_values)
+        self.assertIn(todo.id, [t.id for t in ToDos()])
+        self.assertEqual(todo.text, test_values['text'])
         self.assertEqual(todo.notes, test_values['notes'])
-        self.assertTrue(todo.due_date.startswith(test_values['date']))
-        self.assertEqual(todo.difficulty, test_values['difficulty'])
+        self.assertTrue(todo.date.startswith(test_values['date']))
+        self.assertEqual(todo.priority, test_values['priority'])
         todo.delete()
 
     def test_delete_todo(self):
-        todo = ToDo.add(title='Test deletion todo')
+        todo = ToDo.new(text='Test deletion todo')
         todo.delete()
-        self.assertNotIn(todo, ToDo.all)
+        self.assertNotIn(todo.id, [t.id for t in ToDos()])
 
 
 class TestChecklists(unittest.TestCase):
     def setUp(self):
-        connection = Connection()
-        connection.login(username, password)
-        self.user = User()
-        Daily.update_all()
-        Habit.update_all()
-        ToDo.update_all()
+        auth = API.Authentication
+        auth.login(username, password)
 
     def test_add_checklist_item(self):
-        todo = ToDo.add(title='Test checklist todo')
+        todo = ToDo.new(text='Test checklist todo')
         checklist_text = "Test checklist item"
         todo.add_to_checklist(checklist_text)
         checklist_titles = ([checklist_item['text']
@@ -204,7 +198,7 @@ class TestChecklists(unittest.TestCase):
         todo.delete()
 
     def test_delete_checklist_item(self):
-        todo = ToDo.add(title='Test checklist deletion todo')
+        todo = ToDo.new(text='Test checklist deletion todo')
         checklist_text = "I shouldn't be here"
         todo.add_to_checklist(checklist_text)
         checklist_id = ([checklist_item['id'] for checklist_item in
@@ -216,16 +210,17 @@ class TestChecklists(unittest.TestCase):
         todo.delete()
 
     def test_edit_checklist_item(self):
-        todo = ToDo.add(title='Test checklist edit todo')
+        todo = ToDo.new(text='Test checklist edit todo')
         checklist_text = "You shouldn't see me."
         todo.add_to_checklist(checklist_text)
         edited_text = "I'm what you should see."
         checklist_item = {}
-        checklist_item['id'] = ([checklist_item['id'] for checklist_item in
+        checklist_item['id'] = [checklist_item['id'] for checklist_item in
                                 todo.checklist if
-                                checklist_item['text'] == checklist_text][0])
+                                checklist_item['text'] == checklist_text][0]
         checklist_item['text'] = edited_text
-        todo.edit_checklist(**checklist_item)
+        todo.update_checklist_item(**checklist_item)
+        edited_todo = ToDo(**API.Task.get(todo.id))
         checklist = ([checklist_item['text'] for checklist_item in
                      todo.checklist])
         self.assertNotIn(checklist_text, checklist)

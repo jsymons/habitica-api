@@ -36,7 +36,7 @@ class Task(object):
 
     @updates_task
     def update_checklist_item(self, id, text):
-        update = API.Task.update_checklist_item(self.id, text)
+        return API.Task.update_checklist_item(self.id, id, text)
 
     def score(self, direction='up'):
         API.Task.score(self.id, direction)
