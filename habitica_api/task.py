@@ -5,8 +5,14 @@ from . import API
 def updates_task(f):
     def wrapper(self, *args, **kwargs):
         update = f(self, *args, **kwargs)
-        if update:
-            self._import(**update)
+        self._import(**update)
+    return wrapper
+
+
+def manually_update_task(f):
+    def wrapper(self, *args, **kwargs):
+        f(self, *args, **kwargs)
+        self._import(**API.Task.get(self.id))
     return wrapper
 
 
@@ -38,6 +44,7 @@ class Task(object):
     def update_checklist_item(self, id, text):
         return API.Task.update_checklist_item(self.id, id, text)
 
+    @manually_update_task
     def score(self, direction='up'):
         API.Task.score(self.id, direction)
 

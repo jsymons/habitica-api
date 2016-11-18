@@ -230,39 +230,42 @@ class TestChecklists(unittest.TestCase):
 
 class TestScoring(unittest.TestCase):
     def setUp(self):
-        connection = Connection()
-        connection.login(username, password)
-        self.user = User()
-        Daily.update_all()
-        Habit.update_all()
-        ToDo.update_all()
+        auth = API.Authentication
+        auth.login(username, password)
 
     def test_score_task(self):
-        daily = Daily.add(title='Test score daily')
+        daily = Daily.new(text='Test score daily')
         daily.score()
         self.assertTrue(daily.completed)
         daily.delete()
 
     def test_score_habit(self):
-        habit = Habit.add(title='Test score habit', up=True, down=True)
-        self.user.update_status()
-        current_xp = self.user.profile['stats']['exp']
-        current_hp = self.user.profile['stats']['hp']
+        habit = Habit.new(text='Test score habit', up=True, down=True)
+        user = User()
+        user.update_status()
+        current_xp = user.profile['stats']['exp']
+        current_hp = user.profile['stats']['hp']
         habit.score('up')
-        self.user.update_status()
-        self.assertNotEqual(current_xp, self.user.profile['stats']['exp'],
+        user.update_status()
+        self.assertNotEqual(current_xp, user.profile['stats']['exp'],
                             'XP has not changed')
         habit.score('down')
-        self.user.update_status()
-        self.assertNotEqual(current_hp, self.user.profile['stats']['hp'],
+        user.update_status()
+        self.assertNotEqual(current_hp, user.profile['stats']['hp'],
                             'HP has not changed')
         habit.delete()
 
+    def test_score_todo(self):
+        todo = ToDo.new(text='Test score todo')
+        todo.score()
+        self.assertTrue(todo.completed)
+        todo.delete()
+
     def test_score_checklist(self):
-        todo = ToDo.add(title='Test score checklist')
+        todo = ToDo.new(text='Test score checklist')
         checklist_text = "Check me off!"
         todo.add_to_checklist(checklist_text)
-        todo.score_checklist(todo.checklist[0]['id'])
+        todo.score_checklist_item(todo.checklist[0]['id'])
         self.assertTrue(todo.checklist[0]['completed'])
         todo.delete()
 
