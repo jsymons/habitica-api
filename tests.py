@@ -102,7 +102,7 @@ class TestHabits(unittest.TestCase):
         habit.delete()
 
 
-class TestDailies(unittest.TestCase):
+class TestDailys(unittest.TestCase):
     def setUp(self):
         auth = API.Authentication
         auth.login(username, password)
