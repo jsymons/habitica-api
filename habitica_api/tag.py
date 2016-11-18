@@ -1,43 +1,41 @@
-from .connection import Connection
+from . import API
 
-class Tag():
 
-	all = []
+class Tag(object):
+    def __init__(self, **kwargs):
+        for k in kwargs:
+            setattr(self, k, kwargs[k])
 
-	def __init__(self,id=None,name=None,tasks=[]):
-		self.id = id
-		self.name=name
-		self.tasks=tasks
-		Tag.all.append(self)
+    @classmethod
+    def new(cls, name):
+        data = {'name': name}
+        new_tag = API.Tag.create(data)
+        if new_tag is not None:
+            return cls(**new_tag)
+        else:
+            return None
 
-	@classmethod
-	def update_all(cls):
-		tags = Connection.active.get_tags()
-		if tags is not None:
-			Tag.all = []
-			for tag in tags:
-				cls(**tag)
+    def delete(self):
+        API.Tag.delete(self.id)
 
-	@classmethod
-	def add(cls,name):
-		data = {}
-		data['name'] = name
-		new_tag = Connection.active.add_tag(data)
-		if new_tag is not None:
-			return cls(**new_tag)
-		else:
-			return None
+    def rename(self, new_name):
+        data = {}
+        data['name'] = new_name
+        update = API.Tag.update(self.id, data)
+        for attr in update:
+            setattr(self, attr, update[attr])
 
-	def delete(self):
-		if Connection.active.delete_tag(self.id):
-			for tag in [tag for tag in Tag.all if tag.id == self.id]:
-				Tag.all.remove(tag)
 
-	def rename(self,new_name):
-		data = {}
-		data['name'] = new_name
-		if Connection.active.rename_tag(self.id,data):
-			self.name = new_name
-			return True
-		else:
-			return False
+class Tags(object):
+    def __init__(self):
+        self.tags = []
+        data = API.Tag.get_all()
+        for tag in data:
+            self.tags.append(Tag(**tag))
+
+    def __iter__(self):
+        for t in self.tags:
+            yield t
+
+    def __len__(self):
+        return len(self.tags)

@@ -31,3 +31,6 @@ class Dailys(object):
     def __iter__(self):
         for d in self.dailys:
             yield d
+
+    def __len__(self):
+        return len(self.dailys)

@@ -24,3 +24,6 @@ class ToDos(object):
     def __iter__(self):
         for todo in self.todos:
             yield todo
+
+    def __len__(self):
+        return len(self.todos)

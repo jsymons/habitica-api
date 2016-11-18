@@ -6,7 +6,7 @@ from habitica_api import API
 from habitica_api.daily import Daily, Dailys
 from habitica_api.habit import Habit, Habits
 from habitica_api.todo import ToDo, ToDos
-from habitica_api.tag import Tag
+from habitica_api.tag import Tag, Tags
 
 API.BASE_URL = "http://localhost:3000/api/v3/"
 
@@ -273,44 +273,39 @@ class TestScoring(unittest.TestCase):
 class TestTagging(unittest.TestCase):
 
     def setUp(self):
-        connection = Connection()
-        connection.login(username, password)
-        self.user = User()
-        Daily.update_all()
-        Habit.update_all()
-        ToDo.update_all()
-        Tag.update_all()
+        auth = API.Authentication
+        auth.login(username, password)
 
     def test_read_tags(self):
-        self.assertTrue(len(Tag.all) > 0)
+        self.assertTrue(len(Tags()) > 0)
 
     def test_add_tag(self):
-        new_tag = Tag.add('New tag')
-        self.assertIn(new_tag, Tag.all)
-        new_tag.delete()
+        new_tag = Tag.new('New tag')
+        self.assertIn(new_tag.id, [t.id for t in Tags()])
+        #new_tag.delete()
 
     def test_delete_tag(self):
-        test_tag = Tag.add('Delete me')
+        test_tag = Tag.new('Delete me')
         test_tag.delete()
-        self.assertNotIn(test_tag, Tag.all)
+        self.assertNotIn(test_tag.id, [t.id for t in Tags()])
 
     def test_rename_tag(self):
-        test_tag = Tag.add('Edit me')
+        test_tag = Tag.new('Edit me')
         test_tag.rename('Edited')
         self.assertEqual(test_tag.name, 'Edited')
         test_tag.delete()
 
     def test_apply_tag(self):
-        test_tag = Tag.add('Apply me')
-        test_daily = Daily.add(title='Tag me')
+        test_tag = Tag.new('Apply me')
+        test_daily = Daily.new(text='Tag me')
         test_daily.add_tag(test_tag)
         self.assertIn(test_tag.id, test_daily.tags)
         test_tag.delete()
         test_daily.delete()
 
     def test_remove_tag(self):
-        test_tag = Tag.add('Remove me')
-        test_daily = Daily.add(title='Untag me')
+        test_tag = Tag.new('Remove me')
+        test_daily = Daily.new(text='Untag me')
         test_daily.add_tag(test_tag)
         test_daily.remove_tag(test_tag)
         self.assertNotIn(test_tag.id, test_daily.tags)

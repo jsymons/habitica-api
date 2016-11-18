@@ -9,7 +9,7 @@ def create(tag):
 
 
 @apiCall(request_type='delete',
-         resource='tag/:tagId',
+         resource='tags/:tagId',
          containers=['url_var'])
 def delete(tag_id):
     return {'tagId': tag_id}
@@ -37,7 +37,7 @@ def reorder(tag_id, to):
 
 
 @apiCall(request_type='put',
-         resource='tag/:tagId',
+         resource='tags/:tagId',
          containers=['url_var', 'data'])
 def update(tag_id, tag_updates):
     url_var = {'tagId': tag_id}

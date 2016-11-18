@@ -52,6 +52,14 @@ class Task(object):
     def score_checklist_item(self, check_id):
         return API.Task.score_checklist_item(self.id, check_id)
 
+    @updates_task
+    def add_tag(self, tag):
+        return API.Task.add_tag(self.id, tag.id)
+
+    @updates_task
+    def remove_tag(self, tag):
+        return API.Task.remove_tag(self.id, tag.id)
+
     def _import(self, **kwargs):
         for k in kwargs:
             setattr(self, k, kwargs[k])

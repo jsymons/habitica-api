@@ -63,6 +63,7 @@ def apiCall(request_type=None, resource=None,
             if r.status_code in [200, 201]:
                 return r.json().get('data', r.json())
             else:
+                print('Error calling {}'.format(f.__name__))
                 print('Status code: {}'.format(r.status_code))
                 for rd in request_data:
                     print('{}:{}'.format(rd, request_data[rd]))

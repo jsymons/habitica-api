@@ -24,3 +24,6 @@ class Habits(object):
     def __iter__(self):
         for hab in self.habits:
             yield hab
+
+    def __len__(self):
+        return len(self.habits)
