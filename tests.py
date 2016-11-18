@@ -3,7 +3,7 @@ import unittest
 from habitica_api.user import User
 from habitica_api import task
 from habitica_api import API
-from habitica_api.daily import Daily
+from habitica_api.daily import Daily, Dailys
 from habitica_api.habit import Habit, Habits
 from habitica_api.todo import ToDo
 from habitica_api.tag import Tag
@@ -104,20 +104,18 @@ class TestHabits(unittest.TestCase):
 
 class TestDailies(unittest.TestCase):
     def setUp(self):
-        connection = Connection()
-        connection.login(username, password)
-        self.user = User()
-        Daily.update_all()
+        auth = API.Authentication
+        auth.login(username, password)
 
     def test_read_dailies(self):
         test_task_name = "Test daily"
-        self.assertIn(test_task_name, [daily.title for daily in Daily.all])
+        self.assertIn(test_task_name, [daily.text for daily in Dailys()])
 
     def test_add_daily(self):
         test_values = {}
-        test_values['title'] = "Test creation daily"
+        test_values['text'] = "Test creation daily"
         test_values['notes'] = "Test daily notes"
-        test_values['difficulty'] = 2
+        test_values['priority'] = 2
         test_values['repeat'] = {
             'su': True,
             'm': False,
@@ -129,30 +127,30 @@ class TestDailies(unittest.TestCase):
         }
         test_values['frequency'] = 'weekly'
 
-        daily = Daily.add(**test_values)
-        self.assertIn(daily, Daily.all)
-        self.assertEqual(daily.title, test_values['title'])
+        daily = Daily.new(**test_values)
+        self.assertIn(daily.id, [d.id for d in Dailys()])
+        self.assertEqual(daily.text, test_values['text'])
         self.assertEqual(daily.notes, test_values['notes'])
-        self.assertEqual(daily.difficulty, test_values['difficulty'])
+        self.assertEqual(daily.priority, test_values['priority'])
         self.assertEqual(daily.repeat, test_values['repeat'])
         self.assertEqual(daily.frequency, test_values['frequency'])
         daily.delete()
 
     def test_add_xdays_daily(self):
         test_values = {}
-        test_values['title'] = "Test xdays daily"
+        test_values['text'] = "Test xdays daily"
         test_values['everyX'] = 5
         test_values['frequency'] = 'daily'
-        daily = Daily.add(**test_values)
-        self.assertIn(daily, Daily.all)
+        daily = Daily.new(**test_values)
+        self.assertIn(daily.id, [d.id for d in Dailys()])
         self.assertEqual(daily.everyX, test_values['everyX'])
         self.assertEqual(daily.frequency, test_values['frequency'])
         daily.delete()
 
     def test_delete_daily(self):
-        daily = Daily.add(title='Test deletion daily')
+        daily = Daily.new(text='Test deletion daily')
         daily.delete()
-        self.assertNotIn(daily, Daily.all)
+        self.assertNotIn(daily, Dailys())
 
 
 class TestTodos(unittest.TestCase):
