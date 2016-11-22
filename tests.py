@@ -283,7 +283,7 @@ class TestTagging(unittest.TestCase):
     def test_add_tag(self):
         new_tag = Tag.new('New tag')
         self.assertIn(new_tag.id, [t.id for t in Tags()])
-        #new_tag.delete()
+        new_tag.delete()
 
     def test_delete_tag(self):
         test_tag = Tag.new('Delete me')
@@ -319,12 +319,12 @@ class TestPurchasing(unittest.TestCase):
     def setUp(self):
         auth = API.Authentication
         auth.login(username, password)
+        User.update_status()
 
     def test_buy_healing_potion(self):
         healing_potion_cost = 25
         testing_habit = Habit.new(text='Test habit for stat manipulation',
                                   up=True, down=True)
-        User.update_status()
         while User.gp < healing_potion_cost:
             testing_habit.score('up')
         if User.hp == User.maxHealth:
@@ -336,32 +336,22 @@ class TestPurchasing(unittest.TestCase):
                         "Before health: %s, Current health: %s" %
                         (health_before_potion, User.hp))
 
-    def test_buy_list(self):
-        self.user.get_buy_list()
-        self.assertTrue(len(self.user.buy_list) > 0, 'Buy list is 0 length')
-        self.assertIsNotNone(self.user.buy_list[0].text, 'Invalid item data')
+    def test_purchasables(self):
+        purchasables = Inventory.Purchasables()
+        self.assertTrue(len(purchasables) > 0, 'Purchasables 0 len')
 
     def test_buy_gear(self):
-        self.user.get_buy_list()
-        buy_list_by_price = {}
-        for item in self.user.buy_list:
-            buy_list_by_price[item.value] = item.key
+        purchasables = Inventory.Purchasables()
+        buy_list_by_price = {item.value: item for item in purchasables}
         buy_cost = min(buy_list_by_price.keys())
         item_to_buy = buy_list_by_price[buy_cost]
-        testing_habit = Habit.add(title='Test habit for stat manipulation',
+        testing_habit = Habit.new(text='Test habit for stat manipulation',
                                   up=True, down=True)
-        while self.user.gp < buy_cost:
-            testing_habit.score('up')
+        while User.gp < buy_cost:
+            testing_habit.score()
         testing_habit.delete()
-        self.user.buy_item(item_to_buy)
-        self.user.update_status()
-        all_owned_items = []
-        for item in self.user.inventory['gear']['owned'].keys():
-            if self.user.inventory['gear']['owned'][item]:
-                all_owned_items.append(item)
-        for item in self.user.inventory['gear']['equipped']:
-            all_owned_items.append(item)
-        self.assertIn(item_to_buy, all_owned_items)
+        item_to_buy.buy()
+        self.assertIn(item_to_buy.key, [item.key for item in Inventory.Gear()])
 
 
 class TestInventory(unittest.TestCase):

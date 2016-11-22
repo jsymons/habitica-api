@@ -17,25 +17,24 @@ def buy_health_potion():
 
 
 class QuerySet(object):
-    @classmethod
-    def update(self, data=None):
-        if data is None:
-            self._get_data()
+    def __init__(self):
+        self.items = []
+        data = self._get_data()
         for item in data:
             self.items.append(Item(**item))
 
-    @classmethod
     def _get_data(self):
         return API.User.get_profile()['items'][self.item_type]
 
-    @classmethod
     def __iter__(self):
         for i in self.items:
             yield i
 
+    def __len__(self):
+        return len(self.items)
+
 
 class Purchasables(QuerySet):
-    @classmethod
     def _get_data(self):
         return API.User.get_available_for_purchase()
 
@@ -64,19 +63,31 @@ class Pets(QuerySet):
     item_type = 'pets'
 
 
-class Equipped(QuerySet):
-    @classmethod
+class EquipmentQuerySet(QuerySet):
+    def __init__(self):
+        self.items = []
+        data = self._get_data()
+        for item in data.values():
+            self.items.append(Item(key=item))
+
+
+class Equipped(EquipmentQuerySet):
     def _get_data(self):
         return API.User.get_profile()['items']['gear']['equipped']
 
 
-class Costume(QuerySet):
-    @classmethod
+class Costume(EquipmentQuerySet):
     def _get_data(self):
         return API.User.get_profile()['items']['gear']['costume']
 
 
 class Gear(QuerySet):
-    @classmethod
+    def __init__(self):
+        self.items = []
+        data = self._get_data()
+        for item in data.keys():
+            if data[item] is True:
+                self.items.append(Item(key=item))
+
     def _get_data(self):
         return API.User.get_profile()['items']['gear']['owned']
