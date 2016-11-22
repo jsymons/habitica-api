@@ -7,6 +7,7 @@ from habitica_api.daily import Daily, Dailys
 from habitica_api.habit import Habit, Habits
 from habitica_api.todo import ToDo, ToDos
 from habitica_api.tag import Tag, Tags
+from habitica_api import Inventory
 
 API.BASE_URL = "http://localhost:3000/api/v3/"
 
@@ -316,25 +317,24 @@ class TestTagging(unittest.TestCase):
 class TestPurchasing(unittest.TestCase):
 
     def setUp(self):
-        connection = Connection()
-        connection.login(username, password)
-        self.user = User()
-        Habit.update_all()
+        auth = API.Authentication
+        auth.login(username, password)
 
     def test_buy_healing_potion(self):
         healing_potion_cost = 25
-        testing_habit = Habit.add(title='Test habit for stat manipulation',
+        testing_habit = Habit.new(text='Test habit for stat manipulation',
                                   up=True, down=True)
-        while self.user.gp < healing_potion_cost:
+        User.update_status()
+        while User.gp < healing_potion_cost:
             testing_habit.score('up')
-        if self.user.hp == self.user.maxhp:
+        if User.hp == User.maxHealth:
             testing_habit.score('down')
         testing_habit.delete()
-        health_before_potion = self.user.hp
-        self.user.buy_health_potion()
-        self.assertTrue(self.user.hp > health_before_potion,
+        health_before_potion = User.hp
+        Inventory.buy_health_potion()
+        self.assertTrue(User.hp > health_before_potion,
                         "Before health: %s, Current health: %s" %
-                        (health_before_potion, self.user.hp))
+                        (health_before_potion, User.hp))
 
     def test_buy_list(self):
         self.user.get_buy_list()

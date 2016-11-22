@@ -1,5 +1,6 @@
 import requests
 from . import API
+from . import User
 
 
 def updates_task(f):
@@ -9,9 +10,13 @@ def updates_task(f):
     return wrapper
 
 
-def manually_update_task(f):
+def returns_updated_stats(f):
     def wrapper(self, *args, **kwargs):
-        f(self, *args, **kwargs)
+        stats = f(self, *args, **kwargs)
+        stats.pop('delta')
+        stats.pop('_tmp')
+        User._update_stats(stats)
+        #manually update task
         self._import(**API.Task.get(self.id))
     return wrapper
 
@@ -44,9 +49,9 @@ class Task(object):
     def update_checklist_item(self, id, text):
         return API.Task.update_checklist_item(self.id, id, text)
 
-    @manually_update_task
+    @returns_updated_stats
     def score(self, direction='up'):
-        API.Task.score(self.id, direction)
+        return API.Task.score(self.id, direction)
 
     @updates_task
     def score_checklist_item(self, check_id):
