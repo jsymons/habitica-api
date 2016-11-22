@@ -357,9 +357,14 @@ class TestPurchasing(unittest.TestCase):
 class TestInventory(unittest.TestCase):
 
     def setUp(self):
-        connection = Connection()
-        connection.login(username, password)
-        self.user = User()
+        auth = API.Authentication
+        auth.login(username, password)
 
-    def test_list_inventory(self):
-        self.assertTrue(len(self.user.inventory['gear']['equipped']) > 0)
+    def test_list_purchasables(self):
+        self.assertTrue(len(Inventory.Purchasables()) > 0)
+
+    def test_list_equipped(self):
+        self.assertTrue(len(Inventory.Equipped()) > 0)
+
+    def test_list_gear(self):
+        self.assertTrue(len(Inventory.Gear()) > 0)
